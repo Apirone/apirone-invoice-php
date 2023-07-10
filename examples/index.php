@@ -3,7 +3,7 @@
 require_once('helpers/common.php');
 
 ?>
-<html class="dark">
+<html>
     <head>
         <title>Apirone SDK PHP examples</title>
         <script src="//unpkg.com/alpinejs" defer></script>
@@ -16,7 +16,7 @@ require_once('helpers/common.php');
         <script src="/helpers/script.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body class="flex px-4" x-data>
+    <body class="flex px-4 bg-white" x-data>
         <div class="container mx-auto max-w-5xl prose prose-base">
             <h1 class="md:pt-16 pt-8 text-center md:text-left">Apirone SDK PHP examples</h1>
             <div>
@@ -88,14 +88,96 @@ require_once('helpers/common.php');
                 </p>
                 <?php echo load_file_content('./render_ajax_response.php'); ?>
             </div>
-            <div id="step_5">
+            <div id="step_5" x-data="playground">
                 <h2>Playground</h2>
-                <div x-show="!$store.table || !$store.settings">
-                    Before creating an invoice you need create data table and settings!
+                <div x-show="!$store.table && !$store.settings" class="pb-16 font-semibold">
+                    Before you start working with the playground, you need to create a table and settings.
                 </div>
                 <div x-show="$store.table && $store.settings" class="pb-10">
-                    <div class="my-8">
-                        <form x-data="playground" @submit.prevent="create">
+                    <div class="class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+                        <button @click="active = 0" :class="getClass(0)">Invoice</button>
+                        <button @click="active = 1" :class="getClass(1)">Settings</button>
+                    </div>
+                    <div x-show="active === 1" class="my-8">
+                        <form @submit.prevent="create">
+                            <div x-if="$store.settings" class="grid md:grid-cols-2 gap-6 grid-cols-1">
+                                <label class="block">
+                                    <span class="text-gray-700">Invoice title</span>
+                                    <input type="text" x-model="$store.settings.title" class="mt-1 block w-full placeholder-gray-400">
+                                    <span class="inline-block mt-2 text-gray-400 text-sm">
+                                    </span>
+                                </label>
+                                <label class="block">
+                                    <span class="text-gray-700">Invoice lifetime</span>
+                                    <input type="number" x-model="$store.settings.timeout" min="0" class="mt-1 block w-full placeholder-gray-400">
+                                    <span class="inline-block mt-2 text-gray-400 text-sm">
+                                    </span>
+                                </label>
+                                <label class="block">
+                                    <span class="text-gray-700">Merchant name</span>
+                                    <input type="text" x-model="$store.settings.merchant" min="0" class="mt-1 block w-full placeholder-gray-400">
+                                    <span class="inline-block mt-2 text-gray-400 text-sm">
+                                    </span>
+                                </label>
+                                <label class="block">
+                                    <span class="text-gray-700">Merchant URL</span>
+                                    <input type="text" x-model="$store.settings.merchantUrl" min="0" class="mt-1 block w-full placeholder-gray-400">
+                                    <span class="inline-block mt-2 text-gray-400 text-sm">
+                                    </span>
+                                </label>
+                                <label class="block">
+                                    <span class="text-gray-700">Price adjustment</span>
+                                    <input x-model="$store.settings.factor" type="number" class="mt-1 block w-full" min="0.01" step="0.01">
+                                    <span class="inline-block mt-2 text-gray-400 text-sm">
+                                    </span>
+                                </label>
+                                <label class="block">
+                                    <span class="text-gray-700">Back to store URL</span>
+                                    <input x-model="$store.settings.backlink" type="text" class="mt-1 block w-full placeholder-gray-400">
+                                    <span class="inline-block mt-2 text-gray-400 text-sm">
+                                    </span>
+                                </label>
+                                <label class="block">
+                                    <span class="text-gray-700">QR only</span>
+                                    <select x-model="$store.settings['qr-only']" class="block w-full mt-1">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                    </select>
+                                    <span class="inline-block mt-2 text-gray-400 text-sm no-prose">
+                                    </span>
+                                </label>
+                                <label class="block">
+                                    <span class="text-gray-700">Show Apirone logo</span>
+                                    <select x-model="$store.settings.logo" class="block w-full mt-1">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                    </select>
+                                    <span class="inline-block mt-2 text-gray-400 text-sm">
+                                    </span>
+                                </label>
+                                <label class="block">
+                                    <span class="text-gray-700">Debug mode</span>
+                                    <select x-model="$store.settings.debug" class="block w-full mt-1">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                    </select>
+                                    <span class="inline-block mt-2 text-gray-400 text-sm">
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="border-t-2 mt-6 pt-4">
+                                <button type="submit" class="text-white rounded-md md:w-48 w-full bg-sky-500 hover:bg-sky-600 disabled:bg-gray-300 disabled:text-gray-600 p-4 mr-2 my-2" @click="$event.prevent; save" x-text="settingsLabel"></button>
+                            </div>
+                            <h3>Settings</h3>
+                            <div class="relative">
+                                <button x-show="invoice" class="absolute top-4 right-10 text-gray-200" @click.prevent="toggle" x-text="expand ? 'Collapse' : 'Expand'"></button>
+                                <pre><code class="language-json" :class="{'' : expand, 'max-h-96' : !expand}" x-text="JSON.stringify($store.settings, null, 2)"></code></pre>
+                            </div>
+
+                        </form>
+                    </div>
+                    <div x-show="active === 0" class="my-8">
+                        <form @submit.prevent="create">
                             <div class="grid md:grid-cols-2 gap-6 grid-cols-1">
                                 <label class="block">
                                     <span class="text-gray-700">Currency <span class="text-red-500">*</span></span>
