@@ -169,7 +169,7 @@ class Utils
      * @return bool 
      */
     public static function isFiatSupported($fiat) {
-        $supported_currencies = self::ticker();
+        $supported_currencies = Service::ticker();
         if (!$supported_currencies) {
             return false;
         }
